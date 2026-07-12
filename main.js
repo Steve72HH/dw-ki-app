@@ -84,6 +84,8 @@ const quickPrompts = Array.from(document.querySelectorAll(".quick-prompt"));
 const templateList = document.getElementById("templateList");
 const templateCount = document.getElementById("templateCount");
 const resetStateBtn = document.getElementById("resetStateBtn");
+const exportStateBtn = document.getElementById("exportStateBtn");
+const importStateInput = document.getElementById("importStateInput");
 
 const safeClone = (value) => JSON.parse(JSON.stringify(value));
 
@@ -104,7 +106,26 @@ function readState() {
   }
 }
 
-let state = readState();
+function normalizeState(candidate) {
+  const merged = {
+    ...safeClone(defaults),
+    ...(candidate && typeof candidate === "object" ? candidate : {}),
+  };
+
+  merged.chatMessages = Array.isArray(merged.chatMessages) ? merged.chatMessages : safeClone(defaults.chatMessages);
+  merged.workflows = Array.isArray(merged.workflows) ? merged.workflows : safeClone(defaults.workflows);
+  merged.templates = Array.isArray(merged.templates) ? merged.templates : [];
+  merged.preset = Object.prototype.hasOwnProperty.call(presetCopy, merged.preset) ? merged.preset : "Auto";
+  merged.composerText = typeof merged.composerText === "string" ? merged.composerText : presetCopy.Auto;
+  merged.composerValue = typeof merged.composerValue === "string" ? merged.composerValue : merged.composerText;
+  merged.lastWorkflowRun = typeof merged.lastWorkflowRun === "string" ? merged.lastWorkflowRun : defaults.lastWorkflowRun;
+  merged.teamEnabled = Boolean(merged.teamEnabled);
+  merged.queueCleared = Boolean(merged.queueCleared);
+
+  return merged;
+}
+
+let state = normalizeState(readState());
 let saveTimer = null;
 
 function persistState() {
@@ -232,15 +253,29 @@ function generateAssistantReply(prompt) {
   return `Ich habe den Auftrag aufgenommen: ${trimmed}. Naechster Schritt waeren konkrete Teilschritte, Quellen oder eine Vorlage.`;
 }
 
-function applyPresetFromText(text) {
-  const normalized = text.trim().toLowerCase();
-  const matchedPreset = Object.entries(presetCopy).find(([, value]) => value.toLowerCase() === normalized);
-  syncComposerState(matchedPreset ? matchedPreset[0] : "Auto");
-  if (!matchedPreset) {
-    chatInput.value = text;
-    state.composerValue = text;
-    persistState();
-  }
+function downloadJson(filename, data) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function importStateFromObject(candidate) {
+  state = normalizeState(candidate);
+  renderChat();
+  renderWorkflows();
+  renderQueue();
+  renderTemplates();
+  syncComposerState(state.preset);
+  toggleTeamBtn.textContent = state.teamEnabled ? "Deaktivieren" : "Aktivieren";
+  lastWorkflowRun.textContent = state.lastWorkflowRun;
+  chatStatus.textContent = "Zustand importiert";
+  persistState();
 }
 
 tabs.forEach((tab) => {
@@ -307,6 +342,24 @@ savePromptBtn.addEventListener("click", () => {
   chatStatus.textContent = "als Vorlage gespeichert";
   addChatMessage("assistant", "System", "Prompt als Vorlage vorbereitet.");
   persistState();
+});
+
+exportStateBtn.addEventListener("click", () => {
+  downloadJson("dw-ki-app-state.json", state);
+});
+
+importStateInput.addEventListener("change", async () => {
+  const file = importStateInput.files && importStateInput.files[0];
+  if (!file) return;
+
+  try {
+    const raw = await file.text();
+    importStateFromObject(JSON.parse(raw));
+  } catch {
+    chatStatus.textContent = "Import fehlgeschlagen";
+  } finally {
+    importStateInput.value = "";
+  }
 });
 
 runPromptBtn.addEventListener("click", () => {
@@ -401,6 +454,7 @@ resetStateBtn.addEventListener("click", () => {
 });
 
 function initialize() {
+  state = normalizeState(state);
   state.lastWorkflowRun = state.lastWorkflowRun || defaults.lastWorkflowRun;
   renderChat();
   renderWorkflows();
