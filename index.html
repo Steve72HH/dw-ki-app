@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Digital World KI Dashboard</title>
+    <meta
+      name="description"
+      content="Rekonstruktion des Digital World KI Dashboard als self-hosted AI workspace fuer Chat, Research, Agents und Workflows."
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="main.js"></script>
+  </head>
+  <body>
+    <div class="noise"></div>
+    <div class="ambient ambient-left"></div>
+    <div class="ambient ambient-right"></div>
+
+    <main class="shell">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">SELF-HOSTED AI WORKSPACE</p>
+          <h1>Digital World KI Dashboard</h1>
+          <p class="lede">
+            Eine zentrale Oberflaeche fuer KI-Chat, Research, Agents, Workflows
+            und deinen eigenen API-Router.
+          </p>
+
+          <div class="status-row">
+            <span class="pill pill-live">lokales Modell aktiv</span>
+            <span class="pill pill-muted">API Router bereit</span>
+            <span class="pill pill-muted">Self-hosted</span>
+          </div>
+        </div>
+
+        <div class="hero-aside">
+          <div class="metric-tile">
+            <span class="metric-label">Saved hours</span>
+            <strong>600 EUR</strong>
+            <small>monatliche Plattform-Alternative</small>
+          </div>
+          <div class="metric-tile">
+            <span class="metric-label">Active workflows</span>
+            <strong>2</strong>
+            <small>3 Vorlagen im Workspace</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="preview-panel" aria-label="Dashboard preview">
+        <div class="window-bar">
+          <div class="window-dots" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <div class="window-title">Dashboard Preview</div>
+        </div>
+
+        <div class="dashboard">
+          <aside class="sidebar" aria-label="Navigation">
+            <div class="sidebar-mark">DW</div>
+            <button class="nav-item active" type="button">
+              <span class="nav-icon">HM</span>
+              <span>Startseite</span>
+            </button>
+            <button class="nav-item" type="button">
+              <span class="nav-icon">AI</span>
+              <span>KI-Chat</span>
+            </button>
+            <button class="nav-item" type="button">
+              <span class="nav-icon">WF</span>
+              <span>Workflows</span>
+            </button>
+            <button class="nav-item" type="button">
+              <span class="nav-icon">DR</span>
+              <span>Laufwerk</span>
+            </button>
+            <button class="nav-item" type="button">
+              <span class="nav-icon">AG</span>
+              <span>Agenten</span>
+            </button>
+            <button class="nav-item" type="button">
+              <span class="nav-icon">ST</span>
+              <span>Setup</span>
+            </button>
+          </aside>
+
+          <section class="workspace">
+            <div class="workspace-head">
+              <div>
+                <p class="microcopy">SELF HOSTED AI WORKSPACE</p>
+                <h2>Digital World KI Dashboard</h2>
+              </div>
+              <div class="workspace-badges">
+                <span class="chip chip-ok">ollama bereit</span>
+                <span class="chip chip-dark">Backend</span>
+              </div>
+            </div>
+
+            <div class="composer">
+              <div class="composer-tabs" role="tablist" aria-label="Prompt presets">
+                <button class="tab active" type="button" data-preset="Auto">Auto</button>
+                <button class="tab" type="button" data-preset="Recherche">Recherche</button>
+                <button class="tab" type="button" data-preset="Content">Content</button>
+                <button class="tab" type="button" data-preset="Code">Code</button>
+                <button class="tab" type="button" data-preset="Meeting">Meeting</button>
+              </div>
+              <p class="composer-text" id="composerText">
+                Frag alles. Erstelle alles. Automatisiere alles.
+              </p>
+              <div class="composer-footer">
+                <button class="ghost-btn" type="button" id="focusChatBtn">KI-Chat</button>
+                <div class="composer-actions">
+                  <button class="ghost-btn secondary" type="button" id="savePromptBtn">Als Vorlage</button>
+                  <button class="primary-btn" type="button" id="runPromptBtn">Ausfuehren</button>
+                </div>
+              </div>
+            </div>
+
+            <section class="control-grid" aria-label="Live controls">
+              <article class="control-card chat-card">
+                <div class="split-header">
+                  <span class="module-label">KI-CHAT</span>
+                  <span class="chip chip-dark" id="chatStatus">bereit</span>
+                </div>
+                <div class="chat-log" id="chatLog" aria-live="polite" aria-label="Chatverlauf"></div>
+                <div class="prompt-presets" aria-label="Schnellbefehle">
+                  <button class="chip chip-dark quick-prompt" type="button" data-prompt="Fasse die letzten 3 Aufgaben kompakt zusammen.">Zusammenfassen</button>
+                  <button class="chip chip-dark quick-prompt" type="button" data-prompt="Erstelle einen umsetzbaren Workflow mit 4 Schritten.">Workflow</button>
+                  <button class="chip chip-dark quick-prompt" type="button" data-prompt="Formuliere die Antwort fuer ein internes Update.">Update</button>
+                </div>
+                <form class="chat-form" id="chatForm">
+                  <textarea id="chatInput" rows="3" placeholder="Schreibe eine Anfrage an das Dashboard ..."></textarea>
+                  <div class="chat-actions">
+                    <button class="ghost-btn secondary" type="button" id="clearChatBtn">Verlauf loeschen</button>
+                    <button class="primary-btn" type="submit">Senden</button>
+                  </div>
+                </form>
+              </article>
+
+              <article class="control-card workflow-card">
+                <div class="split-header">
+                  <span class="module-label">WORKFLOWS</span>
+                  <button class="mini-btn" type="button" id="refreshWorkflowsBtn">Aktualisieren</button>
+                </div>
+                <div class="workflow-list" id="workflowList"></div>
+                <div class="workflow-summary">
+                  <div>
+                    <p>Aktive Workflows</p>
+                    <strong id="activeWorkflowCount">2</strong>
+                  </div>
+                  <div>
+                    <p>Letzter Run</p>
+                    <strong id="lastWorkflowRun">bereit</strong>
+                  </div>
+                </div>
+              </article>
+            </section>
+
+            <section class="tool-grid" aria-label="Workspace modules">
+              <article class="module-group">
+                <p class="module-label">KI-MITARBEITER</p>
+                <div class="module-items">
+                  <span>Claw</span>
+                  <span>Research</span>
+                </div>
+              </article>
+
+              <article class="module-group">
+                <p class="module-label">OFFICE-SUITE</p>
+                <div class="module-items">
+                  <span>KI-Folien</span>
+                  <span>KI-Tabellen</span>
+                  <span>KI-Dokumente</span>
+                </div>
+              </article>
+
+              <article class="module-group">
+                <p class="module-label">DESIGN & CODE</p>
+                <div class="module-items">
+                  <span>Design</span>
+                  <span>Code</span>
+                </div>
+              </article>
+
+              <article class="module-group">
+                <p class="module-label">CONTENT-ERSTELLUNG</p>
+                <div class="module-items">
+                  <span class="highlight">KI-Chat</span>
+                  <span>KI-Bild</span>
+                  <span>KI-Video</span>
+                </div>
+              </article>
+
+              <article class="module-group">
+                <p class="module-label">WERKZEUGE</p>
+                <div class="module-items">
+                  <span>Notizen</span>
+                  <span>KI-Agenten</span>
+                  <span>API-Router</span>
+                </div>
+              </article>
+            </section>
+
+            <section class="stats-row" aria-label="Key metrics">
+              <article class="stat-card accent-cyan">
+                <p>Gesparte Plattformkosten</p>
+                <strong>600 EUR</strong>
+                <span>monatliche Plattform-Alternative</span>
+              </article>
+              <article class="stat-card accent-amber">
+                <p>Aktive Workflows</p>
+                <strong id="metricWorkflowCount">2</strong>
+                <span>3 Vorlagen im Workspace</span>
+              </article>
+              <article class="stat-card accent-violet">
+                <p>KI-Mitarbeiter</p>
+                <strong>2</strong>
+                <span>4 Rollen vorbereitet</span>
+              </article>
+              <article class="stat-card accent-green">
+                <p>Vault</p>
+                <strong>3</strong>
+                <span>8 Auftraege abgeschlossen</span>
+              </article>
+            </section>
+
+            <section class="footer-split">
+              <div class="split-card">
+                <div class="split-header">
+                  <span class="module-label">LIVE QUEUE</span>
+                  <button class="mini-btn" type="button" id="clearQueueBtn">Bereinigen</button>
+                </div>
+                <div class="queue-list" id="queueList">
+                  <span>Auftraege</span>
+                  <span>Analysen</span>
+                  <span>Prompts</span>
+                </div>
+              </div>
+
+              <div class="split-card">
+                <div class="split-header">
+                  <span class="module-label">TEAM</span>
+                  <button class="mini-btn" type="button" id="toggleTeamBtn">Aktivieren</button>
+                </div>
+                <div class="queue-list" id="teamList">
+                  <span>KI-Mitarbeiter</span>
+                  <span>Agenten</span>
+                  <span>Workflows</span>
+                </div>
+              </div>
+            </section>
+          </section>
+        </div>
+      </section>
+
+      <section class="action-strip" aria-label="Product highlights">
+        <article class="action-card">
+          <span class="color-dot dot-cyan"></span>
+          <strong>KI-Chat</strong>
+        </article>
+        <article class="action-card">
+          <span class="color-dot dot-amber"></span>
+          <strong>Workflows</strong>
+        </article>
+        <article class="action-card">
+          <span class="color-dot dot-coral"></span>
+          <strong>Agents</strong>
+        </article>
+        <article class="action-card">
+          <span class="color-dot dot-blue"></span>
+          <strong>Vault</strong>
+        </article>
+      </section>
+
+      <section class="bottom-line">
+        <p><strong>600 EUR</strong> Plattformkosten sparen</p>
+        <p>GitHub-ready MVP</p>
+      </section>
+    </main>
+  </body>
+</html>
