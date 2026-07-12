@@ -149,6 +149,10 @@ body::before {
   gap: 10px;
 }
 
+.brand-status .mini-btn {
+  border-radius: 999px;
+}
+
 .hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 280px;
@@ -608,6 +612,57 @@ body::before {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.template-bar {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.template-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.template-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 28px;
+}
+
+.template-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: #eef3ea;
+  font: inherit;
+}
+
+.template-chip span {
+  max-width: 32ch;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.template-chip button {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
 }
 
 .chat-form {
@@ -1112,6 +1167,11 @@ body::before {
 
   .prompt-presets,
   .workflow-actions {
+    flex-direction: column;
+  }
+
+  .template-head {
+    align-items: flex-start;
     flex-direction: column;
   }
 

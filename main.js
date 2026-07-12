@@ -1,3 +1,5 @@
+const STORAGE_KEY = "dw-ki-app-state";
+
 const presetCopy = {
   Auto: "Frag alles. Erstelle alles. Automatisiere alles.",
   Recherche:
@@ -48,6 +50,18 @@ const workflowSeed = [
   },
 ];
 
+const defaults = {
+  chatMessages: initialChat,
+  workflows: workflowSeed,
+  teamEnabled: false,
+  queueCleared: false,
+  templates: [],
+  preset: "Auto",
+  composerText: presetCopy.Auto,
+  composerValue: presetCopy.Auto,
+  lastWorkflowRun: "bereit",
+};
+
 const tabs = Array.from(document.querySelectorAll(".tab"));
 const composerText = document.getElementById("composerText");
 const chatLog = document.getElementById("chatLog");
@@ -67,14 +81,45 @@ const clearQueueBtn = document.getElementById("clearQueueBtn");
 const queueList = document.getElementById("queueList");
 const toggleTeamBtn = document.getElementById("toggleTeamBtn");
 const quickPrompts = Array.from(document.querySelectorAll(".quick-prompt"));
+const templateList = document.getElementById("templateList");
+const templateCount = document.getElementById("templateCount");
+const resetStateBtn = document.getElementById("resetStateBtn");
 
-let chatMessages = [...initialChat];
-let workflows = workflowSeed.map((workflow) => ({ ...workflow }));
-let teamEnabled = false;
-let queueCleared = false;
+const safeClone = (value) => JSON.parse(JSON.stringify(value));
+
+function readState() {
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return safeClone(defaults);
+    const parsed = JSON.parse(raw);
+    return {
+      ...safeClone(defaults),
+      ...parsed,
+      chatMessages: Array.isArray(parsed.chatMessages) ? parsed.chatMessages : safeClone(defaults.chatMessages),
+      workflows: Array.isArray(parsed.workflows) ? parsed.workflows : safeClone(defaults.workflows),
+      templates: Array.isArray(parsed.templates) ? parsed.templates : [],
+    };
+  } catch {
+    return safeClone(defaults);
+  }
+}
+
+let state = readState();
+let saveTimer = null;
+
+function persistState() {
+  window.clearTimeout(saveTimer);
+  saveTimer = window.setTimeout(() => {
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch {
+      // Best effort only.
+    }
+  }, 60);
+}
 
 function escapeHtml(value) {
-  return value
+  return String(value)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
@@ -91,19 +136,19 @@ function formatMessage(message) {
   `;
 }
 
-function renderChat() {
-  chatLog.innerHTML = chatMessages.map(formatMessage).join("");
-  chatStatus.textContent = chatMessages.length > 3 ? "aktiv" : "bereit";
-}
-
 function workflowStatusLabel(status) {
   if (status === "running") return "laufend";
   if (status === "paused") return "pausiert";
   return "bereit";
 }
 
+function renderChat() {
+  chatLog.innerHTML = state.chatMessages.map(formatMessage).join("");
+  chatStatus.textContent = state.chatMessages.length > initialChat.length ? "aktiv" : "bereit";
+}
+
 function renderWorkflows() {
-  workflowList.innerHTML = workflows
+  workflowList.innerHTML = state.workflows
     .map(
       (workflow) => `
         <article class="workflow-item" data-workflow="${workflow.id}">
@@ -125,13 +170,13 @@ function renderWorkflows() {
     )
     .join("");
 
-  const activeCount = workflows.filter((workflow) => workflow.status !== "paused").length;
+  const activeCount = state.workflows.filter((workflow) => workflow.status !== "paused").length;
   activeWorkflowCount.textContent = String(activeCount);
   metricWorkflowCount.textContent = String(activeCount);
 }
 
 function renderQueue() {
-  if (queueCleared) {
+  if (state.queueCleared) {
     queueList.innerHTML = '<span>Queue bereinigt</span><span>Bereit fuer neue Aufgaben</span>';
     return;
   }
@@ -139,15 +184,39 @@ function renderQueue() {
   queueList.innerHTML = "<span>Auftraege</span><span>Analysen</span><span>Prompts</span>";
 }
 
-function setPreset(preset) {
-  composerText.textContent = presetCopy[preset] ?? presetCopy.Auto;
+function renderTemplates() {
+  templateCount.textContent = String(state.templates.length);
+  if (!state.templates.length) {
+    templateList.innerHTML = '<span class="queue-list-empty">Noch keine Vorlagen gespeichert.</span>';
+    return;
+  }
+
+  templateList.innerHTML = state.templates
+    .map(
+      (template, index) => `
+        <div class="template-chip" data-template-index="${index}">
+          <span>${escapeHtml(template)}</span>
+          <button type="button" data-action="remove-template" aria-label="Vorlage loeschen">×</button>
+        </div>
+      `
+    )
+    .join("");
+}
+
+function syncComposerState(preset) {
+  state.preset = preset;
+  state.composerText = presetCopy[preset] ?? presetCopy.Auto;
+  state.composerValue = state.composerText;
+  composerText.textContent = state.composerText;
+  chatInput.value = state.composerValue;
   tabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.preset === preset));
-  chatInput.value = presetCopy[preset] ?? "";
+  persistState();
 }
 
 function addChatMessage(role, label, text) {
-  chatMessages.push({ role, label, text });
+  state.chatMessages = [...state.chatMessages, { role, label, text }];
   renderChat();
+  persistState();
 }
 
 function generateAssistantReply(prompt) {
@@ -163,17 +232,30 @@ function generateAssistantReply(prompt) {
   return `Ich habe den Auftrag aufgenommen: ${trimmed}. Naechster Schritt waeren konkrete Teilschritte, Quellen oder eine Vorlage.`;
 }
 
+function applyPresetFromText(text) {
+  const normalized = text.trim().toLowerCase();
+  const matchedPreset = Object.entries(presetCopy).find(([, value]) => value.toLowerCase() === normalized);
+  syncComposerState(matchedPreset ? matchedPreset[0] : "Auto");
+  if (!matchedPreset) {
+    chatInput.value = text;
+    state.composerValue = text;
+    persistState();
+  }
+}
+
 tabs.forEach((tab) => {
   tab.addEventListener("click", () => {
-    setPreset(tab.dataset.preset || "Auto");
+    syncComposerState(tab.dataset.preset || "Auto");
   });
 });
 
 quickPrompts.forEach((button) => {
   button.addEventListener("click", () => {
     chatInput.value = button.dataset.prompt || "";
-    chatInput.focus();
+    state.composerValue = chatInput.value;
     chatStatus.textContent = "bereit zum senden";
+    persistState();
+    chatInput.focus();
   });
 });
 
@@ -188,19 +270,25 @@ chatForm.addEventListener("submit", (event) => {
 
   addChatMessage("user", "Du", prompt);
   chatStatus.textContent = "arbeitet ...";
+  state.lastWorkflowRun = "Chat in Bearbeitung";
+  persistState();
   chatInput.value = "";
+  state.composerValue = "";
 
   window.setTimeout(() => {
     addChatMessage("assistant", "Assistant", generateAssistantReply(prompt));
     chatStatus.textContent = "aktiv";
-    lastWorkflowRun.textContent = "Chat beantwortet";
+    state.lastWorkflowRun = "Chat beantwortet";
+    lastWorkflowRun.textContent = state.lastWorkflowRun;
+    persistState();
   }, 350);
 });
 
 clearChatBtn.addEventListener("click", () => {
-  chatMessages = [...initialChat];
+  state.chatMessages = safeClone(initialChat);
   renderChat();
   chatStatus.textContent = "zurueckgesetzt";
+  persistState();
 });
 
 focusChatBtn.addEventListener("click", () => {
@@ -208,14 +296,17 @@ focusChatBtn.addEventListener("click", () => {
 });
 
 savePromptBtn.addEventListener("click", () => {
-  const prompt = chatInput.value.trim();
+  const prompt = chatInput.value.trim() || composerText.textContent.trim();
   if (!prompt) {
     chatStatus.textContent = "kein Prompt zum Speichern";
     return;
   }
 
-  chatStatus.textContent = "als Vorlage markiert";
+  state.templates = [prompt, ...state.templates.filter((entry) => entry !== prompt)].slice(0, 6);
+  renderTemplates();
+  chatStatus.textContent = "als Vorlage gespeichert";
   addChatMessage("assistant", "System", "Prompt als Vorlage vorbereitet.");
+  persistState();
 });
 
 runPromptBtn.addEventListener("click", () => {
@@ -229,50 +320,98 @@ workflowList.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-action]");
   if (!button) return;
 
-  const workflow = workflows.find((entry) => entry.id === button.dataset.id);
+  const workflow = state.workflows.find((entry) => entry.id === button.dataset.id);
   if (!workflow) return;
 
   if (button.dataset.action === "run") {
     workflow.status = "running";
+    state.lastWorkflowRun = workflow.name;
     lastWorkflowRun.textContent = workflow.name;
     chatStatus.textContent = `${workflow.name} laeuft`;
+    persistState();
 
     window.setTimeout(() => {
       workflow.status = "ready";
+      state.lastWorkflowRun = `${workflow.name} bereit`;
       renderWorkflows();
+      lastWorkflowRun.textContent = state.lastWorkflowRun;
       chatStatus.textContent = `${workflow.name} bereit`;
+      persistState();
     }, 1200);
   }
 
   if (button.dataset.action === "toggle") {
     workflow.status = workflow.status === "paused" ? "ready" : "paused";
-    lastWorkflowRun.textContent = `${workflow.name}: ${workflowStatusLabel(workflow.status)}`;
+    state.lastWorkflowRun = `${workflow.name}: ${workflowStatusLabel(workflow.status)}`;
+    lastWorkflowRun.textContent = state.lastWorkflowRun;
+    persistState();
   }
 
   renderWorkflows();
 });
 
 refreshWorkflowsBtn.addEventListener("click", () => {
-  workflows = workflows.map((workflow) => ({
+  state.workflows = state.workflows.map((workflow) => ({
     ...workflow,
     status: workflow.status === "running" ? "ready" : workflow.status,
   }));
   renderWorkflows();
   chatStatus.textContent = "Workflows aktualisiert";
+  persistState();
 });
 
 clearQueueBtn.addEventListener("click", () => {
-  queueCleared = !queueCleared;
+  state.queueCleared = !state.queueCleared;
   renderQueue();
+  persistState();
 });
 
 toggleTeamBtn.addEventListener("click", () => {
-  teamEnabled = !teamEnabled;
-  toggleTeamBtn.textContent = teamEnabled ? "Deaktivieren" : "Aktivieren";
-  lastWorkflowRun.textContent = teamEnabled ? "Team aktiviert" : "Team pausiert";
+  state.teamEnabled = !state.teamEnabled;
+  toggleTeamBtn.textContent = state.teamEnabled ? "Deaktivieren" : "Aktivieren";
+  state.lastWorkflowRun = state.teamEnabled ? "Team aktiviert" : "Team pausiert";
+  lastWorkflowRun.textContent = state.lastWorkflowRun;
+  persistState();
 });
 
-setPreset("Auto");
-renderChat();
-renderWorkflows();
-renderQueue();
+templateList.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-action='remove-template']");
+  if (!button) return;
+
+  const chip = button.closest(".template-chip");
+  const index = Number(chip?.dataset.templateIndex);
+  if (Number.isNaN(index)) return;
+
+  state.templates.splice(index, 1);
+  renderTemplates();
+  persistState();
+});
+
+resetStateBtn.addEventListener("click", () => {
+  state = safeClone(defaults);
+  renderChat();
+  renderWorkflows();
+  renderQueue();
+  renderTemplates();
+  syncComposerState("Auto");
+  toggleTeamBtn.textContent = "Aktivieren";
+  lastWorkflowRun.textContent = state.lastWorkflowRun;
+  chatStatus.textContent = "bereit";
+  persistState();
+});
+
+function initialize() {
+  state.lastWorkflowRun = state.lastWorkflowRun || defaults.lastWorkflowRun;
+  renderChat();
+  renderWorkflows();
+  renderQueue();
+  renderTemplates();
+  syncComposerState(state.preset || "Auto");
+  toggleTeamBtn.textContent = state.teamEnabled ? "Deaktivieren" : "Aktivieren";
+  lastWorkflowRun.textContent = state.lastWorkflowRun;
+  if (state.composerValue) {
+    chatInput.value = state.composerValue;
+  }
+}
+
+initialize();

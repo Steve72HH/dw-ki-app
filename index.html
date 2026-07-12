@@ -30,6 +30,7 @@
           <span class="chip chip-dark">v0.1.0</span>
           <span class="chip chip-ok">localhost ready</span>
           <span class="chip chip-dark">self-hosted workspace</span>
+          <button class="mini-btn" type="button" id="resetStateBtn">Reset Demo</button>
         </div>
       </header>
 
@@ -145,6 +146,13 @@
                   <button class="chip chip-dark quick-prompt" type="button" data-prompt="Fasse die letzten 3 Aufgaben kompakt zusammen.">Zusammenfassen</button>
                   <button class="chip chip-dark quick-prompt" type="button" data-prompt="Erstelle einen umsetzbaren Workflow mit 4 Schritten.">Workflow</button>
                   <button class="chip chip-dark quick-prompt" type="button" data-prompt="Formuliere die Antwort fuer ein internes Update.">Update</button>
+                </div>
+                <div class="template-bar" aria-label="Gespeicherte Vorlagen">
+                  <div class="template-head">
+                    <span class="module-label">VORLAGEN</span>
+                    <span class="chip chip-dark" id="templateCount">0</span>
+                  </div>
+                  <div class="template-list" id="templateList"></div>
                 </div>
                 <form class="chat-form" id="chatForm">
                   <textarea id="chatInput" rows="3" placeholder="Schreibe eine Anfrage an das Dashboard ..."></textarea>
