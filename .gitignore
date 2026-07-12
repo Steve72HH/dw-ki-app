@@ -1,0 +1,23 @@
+# Node / local preview
+node_modules/
+dist/
+coverage/
+*.log
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+*.swo
+
+# Codex / local automation artifacts
+.agents/
+.codex/
+.idea/
+.vscode/
+
+# Generated archives or backups
+*.zip
+*.7z
+*.rar

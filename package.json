@@ -1,0 +1,10 @@
+{
+  "name": "dw-ki-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Self-hosted KI-Dashboard fuer Chat, Research, Workflows und Agenten.",
+  "scripts": {
+    "start": "node serve.js",
+    "dev": "node serve.js"
+  }
+}
