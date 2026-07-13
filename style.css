@@ -87,7 +87,7 @@ body::before {
 .shell {
   position: relative;
   z-index: 1;
-  width: min(1560px, calc(100vw - 24px));
+  width: min(1720px, calc(100vw - 16px));
   margin: 0 auto;
   padding: 40px 0 36px;
 }
@@ -175,7 +175,7 @@ body::before {
 
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 280px;
+  grid-template-columns: minmax(0, 1fr) 320px;
   gap: 20px;
   align-items: end;
   margin-bottom: 18px;
@@ -197,7 +197,7 @@ body::before {
   font-size: clamp(3rem, 7vw, 6.3rem);
   line-height: 0.94;
   letter-spacing: -0.05em;
-  max-width: 11ch;
+  max-width: 13ch;
   text-wrap: balance;
 }
 
@@ -362,7 +362,7 @@ body::before {
 
 .dashboard {
   display: grid;
-  grid-template-columns: 112px minmax(0, 1fr);
+  grid-template-columns: 124px minmax(0, 1fr);
   min-height: 820px;
   position: relative;
   z-index: 1;
@@ -420,7 +420,7 @@ body::before {
 }
 
 .workspace {
-  padding: 22px 22px 20px;
+  padding: 24px 26px 22px;
 }
 
 .workspace-head {
@@ -558,14 +558,14 @@ body::before {
 .tool-grid {
   margin-top: 18px;
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 10px;
 }
 
 .control-grid {
   margin-top: 16px;
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.95fr);
   gap: 12px;
 }
 
