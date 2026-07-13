@@ -558,8 +558,9 @@ body::before {
 .tool-grid {
   margin-top: 18px;
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 10px;
+  align-items: stretch;
 }
 
 .control-grid {
@@ -821,7 +822,7 @@ body::before {
 }
 
 .module-group {
-  min-height: 148px;
+  min-height: 156px;
   padding: 14px 12px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 18px;
@@ -873,12 +874,12 @@ body::before {
 
 .stats-row {
   margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 12px;
-  flex-wrap: wrap;
 }
 
 .stat-card {
-  flex: 1 1 180px;
   padding: 14px 14px 15px;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.06);
