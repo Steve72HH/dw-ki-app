@@ -1,26 +1,29 @@
 # DW KI App
 
-Self-hosted KI-Dashboard fuer Chat, Research, Workflows und Agenten.
+[![License](https://img.shields.io/github/license/Steve72HH/dw-ki-app?style=flat-square)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/Steve72HH/dw-ki-app?style=flat-square)](https://github.com/Steve72HH/dw-ki-app/releases)
+[![Last Commit](https://img.shields.io/github/last-commit/Steve72HH/dw-ki-app?style=flat-square)](https://github.com/Steve72HH/dw-ki-app)
+
+Self-hosted KI-Dashboard fuer Chat, Workflows und interne KI-Teams.
 
 ![DW KI App Preview](assets/dashboard-preview.png)
 
-## Overview
+## About
 
 `DW KI App` ist die rekonstruierte Startversion des frueheren `DW KI Dashboard`.
-Der Fokus liegt auf einer klaren Workspace-Oberflaeche, schnellen Prompt-Vorlagen,
-lokaler Zustandsverwaltung und einem Self-hosted-Feeling fuer interne Demos und
-operative KI-Workflows.
+Die App ist bewusst als schlanke, lokale Workspace-Oberflaeche aufgebaut:
+schnell, selbst gehostet und ohne Build-Schritt direkt startbar.
 
-## Highlights
+## Features
 
 - Persistenter Chat mit lokaler Speicherung im Browser
 - Workflow-Steuerung mit Run, Pause und Statusanzeige
 - Prompt-Vorlagen zum schnellen Wiederverwenden
 - Import und Export des App-Zustands als JSON
 - Reset-Funktion fuer einen frischen Demo-Zustand
-- Responsive Dark-UI ohne Build-Schritt
+- Responsive Dark-UI ohne Build-Tooling
 
-## Quick Start
+## Run locally
 
 ```bash
 npm start
@@ -32,15 +35,23 @@ Danach im Browser oeffnen:
 http://127.0.0.1:4173/
 ```
 
-## Project Structure
+## Project structure
 
 | File | Purpose |
 | --- | --- |
 | `index.html` | Dashboard-Oberflaeche |
 | `style.css` | Layout, Farben und responsive Darstellung |
 | `main.js` | Interaktion, State und Speicherung |
-| `serve.js` | lokaler Static Server ohne Build-Tooling |
+| `serve.js` | Lokaler Static Server ohne Build-Tooling |
 | `assets/dashboard-preview.png` | Screenshot fuer die Projektvorschau |
+
+## Roadmap
+
+- Reale KI-Anbindung statt rein lokaler Demo-Logik
+- Mehr Platz fuer Inhalte im Dashboard-Layout
+- Erweiterbare Prompt- und Workflow-Bibliothek
+- Besseres Export- und Backup-Konzept fuer Sessions
+- Sauberer Deploy-Pfad fuer Self-hosting und Demo-Betrieb
 
 ## Status
 
