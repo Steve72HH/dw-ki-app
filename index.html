@@ -111,6 +111,7 @@
               <div>
                 <p class="microcopy">SELF HOSTED AI WORKSPACE</p>
                 <h2>Digital World KI Dashboard</h2>
+                <p class="workspace-meta" id="activeProjectMeta">Standard-Sitzung fuer Chat, Vorlagen und Workflows.</p>
               </div>
               <div class="workspace-badges">
                 <span class="chip chip-ok">ollama bereit</span>
@@ -153,7 +154,14 @@
                 <div class="template-bar" aria-label="Gespeicherte Vorlagen">
                   <div class="template-head">
                     <span class="module-label">VORLAGEN</span>
-                    <span class="chip chip-dark" id="templateCount">0</span>
+                    <div class="template-head-actions">
+                      <button class="mini-btn" type="button" id="clearPromptFiltersBtn">Filter loeschen</button>
+                      <span class="chip chip-dark" id="templateCount">0</span>
+                    </div>
+                  </div>
+                  <div class="library-toolbar">
+                    <input id="promptSearchInput" type="search" placeholder="Vorlagen durchsuchen ..." />
+                    <input id="promptTagInput" type="text" placeholder="Tags filtern oder fuer neue Vorlage nutzen ..." />
                   </div>
                   <div class="template-list" id="templateList"></div>
                 </div>
@@ -180,6 +188,67 @@
                   <div>
                     <p>Letzter Run</p>
                     <strong id="lastWorkflowRun">bereit</strong>
+                  </div>
+                </div>
+              </article>
+            </section>
+
+            <section class="workspace-tools" aria-label="Workspace management">
+              <article class="panel-card project-panel">
+                <div class="split-header">
+                  <div>
+                    <span class="module-label">PROJEKTE</span>
+                    <strong id="activeProjectName">Main Workspace</strong>
+                  </div>
+                  <span class="chip chip-dark" id="projectCount">1</span>
+                </div>
+                <p class="panel-copy">
+                  Speichere getrennte Sessions, dupliziere Arbeitsstaende und springe zwischen Workspace-Snapshots.
+                </p>
+                <div class="project-form">
+                  <input id="projectNameInput" type="text" placeholder="Neues Projekt oder Kopie benennen" />
+                  <input id="projectDescriptionInput" type="text" placeholder="Kurze Beschreibung fuer die Session" />
+                  <div class="project-form-actions">
+                    <button class="ghost-btn secondary" type="button" id="createProjectBtn">Projekt anlegen</button>
+                    <button class="ghost-btn secondary" type="button" id="duplicateProjectBtn">Aktuelle Sitzung duplizieren</button>
+                  </div>
+                </div>
+                <div class="project-list" id="projectList"></div>
+              </article>
+
+              <article class="panel-card ai-panel">
+                <div class="split-header">
+                  <div>
+                    <span class="module-label">AI BACKEND</span>
+                    <strong>OpenAI-kompatible Verbindung</strong>
+                  </div>
+                  <span class="chip chip-dark" id="aiBackendStatus">lokal</span>
+                </div>
+                <p class="panel-copy">
+                  Verbinde hier einen lokalen oder externen Chat-Endpunkt. Wenn nichts konfiguriert ist, nutzt das Dashboard die lokale Fallback-Antwort.
+                </p>
+                <div class="ai-form">
+                  <label class="field">
+                    <span>Endpoint</span>
+                    <input id="aiEndpointInput" type="url" placeholder="https://dein-endpoint.example.com/v1/chat/completions" />
+                  </label>
+                  <div class="field-grid">
+                    <label class="field">
+                      <span>Modell</span>
+                      <input id="aiModelInput" type="text" placeholder="gpt-4o-mini" />
+                    </label>
+                    <label class="field">
+                      <span>API Key</span>
+                      <input id="aiKeyInput" type="password" placeholder="Optional fuer private Backends" />
+                    </label>
+                  </div>
+                  <label class="field">
+                    <span>System Prompt</span>
+                    <textarea id="aiSystemPromptInput" rows="4" placeholder="Systemanweisung fuer das Modell"></textarea>
+                  </label>
+                  <div class="ai-actions">
+                    <button class="ghost-btn secondary" type="button" id="saveAiConfigBtn">Speichern</button>
+                    <button class="ghost-btn secondary" type="button" id="testAiBtn">Verbindung testen</button>
                   </div>
                 </div>
               </article>
